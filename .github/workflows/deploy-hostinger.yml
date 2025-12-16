@@ -1,0 +1,42 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HOSTINGER_SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Hostinger
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.HOSTINGER_SSH_USER }}@${{ secrets.HOSTINGER_SSH_HOST }} << 'EOF'
+            cd public_html/cosas-i-doodle
+            git fetch origin
+            git reset --hard origin/main
+            echo "Deploy completado en $(date)" >> deploy.log
+          EOF
+
+      - name: Cleanup SSH
+        if: always()
+        run: |
+          rm -rf ~/.ssh
+
+      - name: Notify Success
+        if: success()
+        run: echo "✅ Deploy a Hostinger exitoso"
+
+      - name: Notify Failure
+        if: failure()
+        run: echo "❌ Deploy fallido - Revisar logs"
