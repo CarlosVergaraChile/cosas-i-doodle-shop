@@ -1,0 +1,44 @@
+# Archivos de configuracion con API keys (NUNCA COMMITEAR)
+.env
+.env.local
+.env.*.local
+
+# Stripe keys y tokens
+config.local.js
+config.production.js
+
+# Node modules (si se usa npm)
+node_modules/
+package-lock.json
+
+# Sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-project
+.sublime-workspace
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Stripe CLI
+.stripe-keys
+
+# Archivos temporales
+tmp/
+temp/
+*.tmp
