@@ -83,3 +83,42 @@ cosas-i-doodle-shop/
 
 Ilustraciones © Monica Silva Ricci
 Codigo © Carlos Vergara - MIT License
+
+## 💳 Integración con Payment Gateway Standard (Código RED)
+
+Este proyecto utiliza el framework standardizado `payment-gateway-standard` para procesamiento de pagos. Esto permite reutilizar la lógica de pagos en todos los proyectos de CarlosVergaraChile.
+
+### Pasarelas Soportadas
+
+- **Flow** (Recomendado para CLP - 1.49% comisión)
+- **Global66** (Pagos internacionales - múltiples monedas)
+- **Mercado Pago** (Opción actual - regional)
+- **PayPal** (Fallback - alcance global)
+
+### Configuración
+
+Para cambiar entre pasarelas de pago, actualiza las credenciales en tu archivo `.env`:
+
+```bash
+PAYMENT_PROVIDER=flow          # o 'global66', 'paypal', 'mercadopago'
+FLOW_MERCHANT_ID=tu_id
+FLOW_API_KEY=tu_clave
+```
+
+Ver [payment-gateway-standard](https://github.com/CarlosVergaraChile/payment-gateway-standard) para documentación completa.
+
+### Migración de Mercado Pago a Flow
+
+Para mejorar márgenes (Flow cuesta 1.49% vs MP 2.5%+):
+
+1. Crear cuenta en [flow.cl](https://www.flow.cl)
+2. Actualizar credenciales en `.env`
+3. Cambiar `PAYMENT_PROVIDER=flow`
+4. Probar en ambiente sandbox antes de producción
+
+### Código RED: Reutilizable, Escalable, Documentado
+
+Este proyecto sigue el criterio de diseño RED:
+- ✅ **Reutilizable**: Pasarela de pagos compartida con otros proyectos
+- ✅ **Escalable**: Agrega nuevas pasarelas sin cambiar código
+- ✅ **Documentado**: README, comments en código, guías de integración
