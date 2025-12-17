@@ -119,6 +119,47 @@ Para mejorar márgenes (Flow cuesta 1.49% vs MP 2.5%+):
 ### Código RED: Reutilizable, Escalable, Documentado
 
 Este proyecto sigue el criterio de diseño RED:
+
+## 🚀 Deployment Automático a Hostinger (GitHub Actions)
+
+Este proyecto incluye un workflow automático de GitHub Actions que despliega la aplicación a Hostinger cada vez que haces push a la rama `main`.
+
+### Requisitos Previos
+
+1. Cuenta activa en Hostinger con SSH habilitado
+2. Acceso a la configuración de GitHub del repositorio
+3. Credenciales SSH de Hostinger (hostname, usuario, clave privada)
+
+### Configuración Rápida
+
+1. **Lee la guía completa**: [`SETUP_HOSTINGER_SSH.md`](./SETUP_HOSTINGER_SSH.md) - Instrucciones detalladas paso a paso
+2. **Configura los secretos**: Ve a Settings → Secrets and variables → Actions
+3. **Agrega tres secretos**:
+   - `HOSTINGER_SSH_HOST`: Tu hostname SSH de Hostinger
+   - `HOSTINGER_SSH_USER`: Tu usuario SSH de Hostinger
+   - `HOSTINGER_SSH_KEY`: Tu clave privada SSH (contenido completo)
+
+### Cómo Funciona
+
+- Cada push a `main` dispara automáticamente el deployment
+- El workflow se ejecuta en Ubuntu y conecta vía SSH a tu servidor Hostinger
+- Actualiza automáticamente el código en `/public_html/cosas-i-doodle/`
+- Registra todos los deployments en `deploy.log`
+
+### Monitoreo
+
+- Ve a la pestaña **Actions** para ver el estado de los workflows
+- Los logs detallados están disponibles para cada ejecución
+- Se envían notificaciones de éxito/fallo
+
+### Documentación Relacionada
+
+- [`SETUP_HOSTINGER_SSH.md`](./SETUP_HOSTINGER_SSH.md) - Guía técnica de configuración SSH
+- [`GITHUB_ACTIONS_SETUP.md`](./GITHUB_ACTIONS_SETUP.md) - Configuración de GitHub Actions
+- [`DEPLOYMENT.md`](./DEPLOYMENT.md) - Instrucciones de deployment manual
+- [`FLOW_SETUP.md`](./FLOW_SETUP.md) - Integración con Flow.cl
+
+---
 - ✅ **Reutilizable**: Pasarela de pagos compartida con otros proyectos
 - ✅ **Escalable**: Agrega nuevas pasarelas sin cambiar código
 - ✅ **Documentado**: README, comments en código, guías de integración
