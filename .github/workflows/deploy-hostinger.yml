@@ -9,34 +9,78 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Validate required secrets
+        run: |
+          if [ -z "${{ secrets.HOSTINGER_SSH_HOST }}" ]; then
+            echo "ERROR: HOSTINGER_SSH_HOST secret not configured"
+            exit 1
+          fi
+          if [ -z "${{ secrets.HOSTINGER_SSH_USER }}" ]; then
+            echo "ERROR: HOSTINGER_SSH_USER secret not configured"
+            exit 1
+          fi
+          if [ -z "${{ secrets.HOSTINGER_SSH_KEY }}" ]; then
+            echo "ERROR: HOSTINGER_SSH_KEY secret not configured"
+            exit 1
+          fi
+          echo "All required secrets are configured"
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.HOSTINGER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan "${{ secrets.HOSTINGER_SSH_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa "${{ secrets.HOSTINGER_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+          echo "SSH keys configured successfully"
 
       - name: Deploy to Hostinger
         run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.HOSTINGER_SSH_USER }}@${{ secrets.HOSTINGER_SSH_HOST }} << 'EOF'
-            cd public_html/cosas-i-doodle
+          ssh -v -i ~/.ssh/id_rsa -o ConnectTimeout=10 -o StrictHostKeyChecking=no ${{ secrets.HOSTINGER_SSH_USER }}@${{ secrets.HOSTINGER_SSH_HOST }} << 'EOF'
+          
+          # Navigate to deployment directory
+          cd ~/public_html/cosas-i-doodle
+          
+          # Update repository
+          if [ -d .git ]; then
+            echo "Updating existing repository..."
             git fetch origin
             git reset --hard origin/main
-            echo "Deploy completado en $(date)" >> deploy.log
+          else
+            echo "Cloning repository..."
+            git clone https://github.com/CarlosVergaraChile/cosas-i-doodle-shop.git .
+          fi
+          
+          # Log deployment
+          echo "Deploy completed at $(date)" >> deploy.log
+          echo "Deployment Status: SUCCESS"
+          
           EOF
 
-      - name: Cleanup SSH
+      - name: Cleanup SSH keys
         if: always()
         run: |
-          rm -rf ~/.ssh
+          rm -f ~/.ssh/id_rsa
+          rm -f ~/.ssh/known_hosts
+          echo "SSH keys cleaned up"
 
-      - name: Notify Success
+      - name: Send success notification
         if: success()
-        run: echo "✅ Deploy a Hostinger exitoso"
+        run: |
+          echo "✅ Deployment to Hostinger completed successfully"
+          echo "Repository: ${{ github.repository }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref }}"
 
-      - name: Notify Failure
+      - name: Send failure notification
         if: failure()
-        run: echo "❌ Deploy fallido - Revisar logs"
+        run: |
+          echo "❌ Deployment to Hostinger FAILED"
+          echo "Repository: ${{ github.repository }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Please check the logs above for details"
